@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -106,7 +106,6 @@ namespace DijkstrasAlgorithm
         }
 
 
-
         public static List<Node> cloneListOfNodes(List<Node> nodes)
         {
             List<Node> newListOfNodes = new List<Node>();
@@ -151,9 +150,9 @@ namespace DijkstrasAlgorithm
         }
 
 
-        public static List<Node> getNodesWithCalculatedDistances(int sourceIndex, List<Node> nodes)
+        public static List<Node> getNodesWithCalculatedDistances(uint sourceIndex, List<Node> nodes)
         {
-            nodes.ElementAt(sourceIndex).setDistance(0);
+            nodes.ElementAt((int)sourceIndex).setDistance(0);
             List<Node> unVisitedNodes = cloneListOfNodes(nodes);
             updateDistanceForEachNode(unVisitedNodes, nodes);
             return unVisitedNodes;
@@ -162,22 +161,61 @@ namespace DijkstrasAlgorithm
 
 
 
-        public static uint getShortestDistanceTo(int destinationIndex, int sourceIndex, List<Node> nodes)
+        public static uint getShortestDistanceTo(uint destinationIndex, uint sourceIndex, List<Node> nodes)
         {
             nodes = getNodesWithCalculatedDistances(sourceIndex, nodes);
-            Node destination = nodes.ElementAt(destinationIndex);
+            Node destination = nodes.ElementAt((int)destinationIndex);
             return destination.getDistance();
         }
 
+        public static List<Node> getAdjacentNodes(Node node)
+        {
+            List<Node> adjacentNodes = new List<Node>();
+            foreach (Link link in node.getLinks())
+            {
+                adjacentNodes.Add(link.getNode());
+            }
+            return adjacentNodes;
+        }
+
+
+        public static Node getNextNodeInPath(Node node)
+        {
+            foreach (Link link in node.getLinks())
+            {
+                if (link.getNode().getDistance() == node.getDistance() - link.getWeight())
+                {
+                    return link.getNode();
+                }
+            }
+            return node;
+        }
+
+
+        public static List<Node> getPath(Node destination, List<Node> path)
+        {
+            if (destination.getDistance() == 0) { return path; }
+            Node nextNode = getNextNodeInPath(destination);
+            path.Add(nextNode);
+            return getPath(nextNode, path);
+        } 
+
+        public static List<Node> getPath(uint destinationIndex, uint sourceIndex, List<Node> nodeNetwork)
+        {
+            Node destination = nodeNetwork.ElementAt((int)destinationIndex);
+            nodeNetwork = getNodesWithCalculatedDistances(sourceIndex, nodeNetwork);
+            return getPath(destination, new List<Node>() { destination });
+        }
 
 
 
         public static void Main(string[] args)
         {
 
-
-            List<Node> nodes = getNodeNetwork();
-            Console.WriteLine(getShortestDistanceTo(2, 0, nodes));
+            foreach (Node node in getPath(2, 0, getNodeNetwork()))
+            {
+                Console.WriteLine(node.getDistance());
+            }
 
 
         }
