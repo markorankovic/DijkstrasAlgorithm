@@ -171,13 +171,41 @@ namespace DijkstrasAlgorithm
                 }
             }
             return possibleNumbers;
-        } 
+        }
+
+        bool possibleNumbersInvalid(List<int> possibleNumbers)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                if (possibleNumbers.ElementAt(i) < 0 || possibleNumbers.ElementAt(i) > nodes.Count-1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public void openCommandLine()
         {
             string input = Console.ReadLine();
             string[] str = input.Split();
             List<int> possibleNumbers = this.getPossibleNumbers(input);
+
+            if (possibleNumbers.Count == 0)
+            {
+                switch (input)
+                {
+                    case "exit": return;
+                    default: Console.WriteLine("Error: Invalid command \n"); openCommandLine(); return;
+                }
+            }
+
+            if (input != string.Format("create new nodes {0}", possibleNumbers.ElementAt(0)) && possibleNumbersInvalid(possibleNumbers))
+            {
+                Console.WriteLine("Error: Invalid input \n");
+                openCommandLine();
+                return;
+            }
 
             switch (possibleNumbers.Count)
             {
@@ -195,13 +223,6 @@ namespace DijkstrasAlgorithm
                     break;
             }
 
-            switch (input)
-            {
-                case "display network": Console.WriteLine(ToString()); break;
-                case "exit": return;
-                default: Console.WriteLine("CMD: Invalid command \n"); break;
-            }
-            openCommandLine();
         }
 
         override public string ToString()
